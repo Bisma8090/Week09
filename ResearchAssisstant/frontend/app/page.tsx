@@ -20,8 +20,8 @@ export default function Home() {
     try {
       const data = await askQuestion(question);
       setResult(data);
-    } catch {
-      setError('Failed to connect to backend. Make sure it is running on port 3000.');
+    } catch (err: any) {
+      setError(err?.response?.data?.message ?? 'Failed to reach backend. Please try again.');
     } finally {
       setLoading(false);
     }
