@@ -216,6 +216,16 @@ export class WorkflowService {
 
     // Step 4
     const summaries = this.buildSummaries(rankedDocs);
+
+    if (summaries.length === 0) {
+      trace.steps.push({ step: 'Summarizer', detail: 'No relevant documents found.' });
+      return {
+        question, subQuestions, retrievedDocs, rankedDocs, summaries, contradictions: [],
+        finalAnswer: '> No relevant documents found in the knowledge base for your question. Please upload related documents first.',
+        trace: { ...trace, docsUsed: [], contradictions: [] },
+      };
+    }
+
     trace.steps.push({ step: 'Summarizer', detail: summaries.map(s => ({ title: s.title, preview: s.summary.slice(0, 80) + '...' })) });
     trace.docsUsed = summaries.map(s => s.title);
 
