@@ -1,24 +1,23 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../src/app.module';
-import { ExpressAdapter } from '@nestjs/platform-express';
-import express from 'express';
 import { Request, Response } from 'express';
 
-const server = express();
-let isReady = false;
+let app: any;
 
-const appPromise = NestFactory.create(AppModule, new ExpressAdapter(server)).then(app => {
-  app.enableCors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  });
-  return app.init();
-}).then(() => {
-  isReady = true;
-});
+async function bootstrap() {
+  if (!app) {
+    app = await NestFactory.create(AppModule);
+    app.enableCors({
+      origin: '*',
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+    });
+    await app.init();
+  }
+  return app;
+}
 
 export default async (req: Request, res: Response) => {
-  await appPromise;
-  server(req, res);
+  const nestApp = await bootstrap();
+  nestApp.getHttpAdapter().getInstance()(req, res);
 };
