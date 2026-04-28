@@ -5,8 +5,10 @@ import { ResearchDocument, ResearchDocumentDocument } from '../schemas/document.
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
+const STOP_WORDS = new Set(['what','is','are','the','a','an','of','to','in','and','or','for','on','with','how','why','when','should','you','do','does','can','vs','versus','between','difference','use','using','used','it','its','this','that','these','those','be','been','being','have','has','had','will','would','could','should','may','might','about','which','who','where','there','their','they','we','our','your','my','me','him','her','us','them']);
+
 function tokenize(text: string): string[] {
-  return text.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(Boolean);
+  return text.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(t => t.length > 2 && !STOP_WORDS.has(t));
 }
 
 function termFrequency(tokens: string[]): Record<string, number> {
@@ -99,7 +101,7 @@ export class WorkflowService {
       for (const doc of allDocs) {
         const docTokens = tokenize(doc.title + ' ' + doc.content);
         const overlap = qTokens.filter(t => docTokens.includes(t)).length;
-        if (overlap > 0) results.push({ doc, subQ });
+        if (overlap >= 2) results.push({ doc, subQ });
       }
     }
     return results;
