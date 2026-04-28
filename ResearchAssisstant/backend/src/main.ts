@@ -7,10 +7,7 @@ async function bootstrap() {
   if (!app) {
     app = await NestFactory.create(AppModule);
     app.enableCors({
-      origin: [
-        'http://localhost:3001',
-        process.env.FRONTEND_URL ?? '',
-      ].filter(Boolean),
+      origin: '*',
     });
     await app.init();
   }
@@ -18,10 +15,10 @@ async function bootstrap() {
 }
 
 // Local dev
-if (process.env.NODE_ENV !== 'production') {
+if (require.main === module) {
   bootstrap().then(async (nestApp) => {
-    await nestApp.listen(3000);
-    console.log('Backend running on http://localhost:3000');
+    await nestApp.listen(process.env.PORT ?? 3000);
+    console.log(`Backend running on http://localhost:${process.env.PORT ?? 3000}`);
   });
 }
 
